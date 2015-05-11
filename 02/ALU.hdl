@@ -39,7 +39,7 @@ CHIP ALU {
         nx, // negate the x input?
         zy, // zero the y input?
         ny, // negate the y input?
-        f,  // compute  out = x + y (if f == 1) or out = x & y (if == 0)
+        f,  // compute  out = x + y (if f == 1) or out = x & y (if f == 0)
         no; // negate the out outp
 
     OUT 
