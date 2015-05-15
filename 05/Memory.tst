@@ -1,6 +1,6 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
+// This file is part of the materials accompanying the book 
+// "The Elements of Computing Systems" by Nisan and Schocken, 
+// MIT Press. Book site: www.idc.ac.il/tecs
 // File name: projects/05/Memory.tst
 
 load Memory.hdl,
@@ -8,7 +8,7 @@ output-file Memory.out,
 compare-to Memory.cmp,
 output-list in%D1.6.1 load%B2.1.2 address%D2.5.2 out%D1.6.1;
 
-echo "Before running this script, select the 'Screen' option from the 'View' menu";
+echo "Before you run this script, select the 'Screen' option from the 'View' menu";
 
 set in 0,
 set load 0,
@@ -45,6 +45,14 @@ output;
 tock,
 output;
 
+set address 12636,
+eval,
+output;
+
+set address 20828,
+eval,
+output;
+
 set in 13131,
 set address 13131,
 tick,
@@ -62,6 +70,14 @@ set load 0,
 tick,
 output;
 tock,
+output;
+
+set address 4939,
+eval,
+output;
+
+set address 21323,
+eval,
 output;
 
 set address 4444,
@@ -85,6 +101,14 @@ set load 0,
 tick,
 output;
 tock,
+output;
+
+set address 8191,
+eval,
+output;
+
+set address 24575,
+eval,
 output;
 
 set address 13131,
@@ -117,9 +141,28 @@ output,
 set address 20559,
 tick,
 tock,
-output,
+output;
 
 set load 0,
+set address 4047,
+eval,
+output;
+
+set load 0,
+set address 12239,
+eval,
+output;
+
+set load 0,
+set address 4175,
+eval,
+output;
+
+set load 0,
+set address 12367,
+eval,
+output;
+
 set address 24576,
 echo "Make sure that you see two horizontal lines in the middle of the screen. Hold down 'Y' (uppercase) until you see the next message ...",
 // It's important to keep holding the key down since if the system is busy,

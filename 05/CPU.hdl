@@ -20,13 +20,13 @@
  * instruction. The addressM and pc outputs are clocked: although they 
  * are affected by the execution of the current instruction, they commit 
  * to their new values only in the next time unit. If reset == 1, then the 
- * CPU jumps to address 0 (i.e. sets pc = 0 in next time unit) rather 
+ * CPU jumps to address 0 (i.e. sets pc=0 in next time unit) rather 
  * than to the address resulting from executing the current instruction. 
  */
 
 CHIP CPU {
 
-    IN  inM[16],         // M value input  (M = contents of RAM[A])
+    IN  inM[16],         // M value input  (M=contents of RAM[A])
         instruction[16], // Instruction for execution
         reset;           // Signals whether to re-start the current program
                          // (reset == 1) or continue executing the current
@@ -38,5 +38,62 @@ CHIP CPU {
         pc[15];          // ROM address (of next instruction)
 
      PARTS:
-    // Put your code here.
+     /* Decode A or C instruction */
+     DMux(in=instruction[0], a=consta0, b=j1, sel=instruction[15]);
+     DMux(in=instruction[1], a=consta1, b=j2, sel=instruction[15]);
+     DMux(in=instruction[2], a=consta2, b=j3, sel=instruction[15]);
+     DMux(in=instruction[3], a=consta3, b=writeM, sel=instruction[15]);
+     DMux(in=instruction[4], a=consta4, b=d2, sel=instruction[15]);
+     DMux(in=instruction[5], a=consta5, b=d1, sel=instruction[15]);
+     DMux(in=instruction[6], a=consta6, b=c6, sel=instruction[15]);
+     DMux(in=instruction[7], a=consta7, b=c5, sel=instruction[15]);
+     DMux(in=instruction[8], a=consta8, b=c4, sel=instruction[15]);
+     DMux(in=instruction[9], a=consta9, b=c3, sel=instruction[15]);
+     DMux(in=instruction[10], a=consta10, b=c2, sel=instruction[15]);
+     DMux(in=instruction[11], a=consta11, b=c1, sel=instruction[15]);
+     DMux(in=instruction[12], a=consta12, b=a, sel=instruction[15]);
+     DMux(in=instruction[13], a=consta13, sel=instruction[15]);
+     DMux(in=instruction[14], a=consta14, sel=instruction[15]);
+
+     /* Invert instruction[15] so that it can be used a load signal for the a-register */
+     Not(in=instruction[15], out=setconsta);
+
+     /* Determine whether the A value is going to come from the ALU output or the constant input */
+     Mux16(a[0]=consta0, a[1]=consta1, a[2]=consta2, a[3]=consta3, a[4]=consta4, a[5]=consta5, a[6]=consta6, a[7]=consta7, a[8]=consta8, a[9]=consta9, a[10]=consta10, a[11]=consta11, a[12]=consta12, a[13]=consta13, a[14]=consta14, b=aluout, sel=instruction[15], out[0..14]=aval);
+
+     /* Determine if the A value needs to be set */
+     Or(a=setconsta, b=d1, out=loada);
+
+     /* Set A register to load if we are dealing with an A instruction */
+     ARegister(in[0..14]=aval, load=loada, out[0..14]=aregout, out[0..14]=addressM);
+
+     /* Set D Register to load if appropriate */
+     DRegister(in=aluout, load=d2, out=alux);
+
+     /* Perform setup of ALU */
+     ALU(x=alux, y=aluy, out=aluout, out=outM, zx=c1, nx=c2, zy=c3, ny=c4, f=c5, no=c6, zr=aluzr, ng=alung);
+
+     /* Differentiate between A or M as an input to the ALU's y input */
+     Mux16(a[0..14]=aregout, b=inM, sel=a, out=aluy);
+
+     /* Determine whether to jump or not */
+     DMux8Way(in=true, b=jgt, c=jeq, d=jge, e=jlt, f=jne, g=jle, h=jmp, sel[0]=j1, sel[1]=j2, sel[2]=j3);
+
+     DMux4Way(in=true, a=gt, b=eq, c=lt, sel[0]=aluzr, sel[1]=alung);
+
+     Or(a=gt, b=eq, out=gte);
+     Or(a=eq, b=lt, out=lte);
+     Not(in=eq, out=neq);
+
+     And(a=jgt, b=gt, out=dojgt);
+     And(a=jeq, b=eq, out=dojeq);
+     And(a=jge, b=gte, out=dojge);
+     And(a=jlt, b=lt, out=dojl);
+     And(a=jne, b=neq, out=dojne);
+     And(a=jle, b=lte, out=dojle);
+
+     Or8Way(in[0]=dojgt, in[1]=dojeq, in[2]=dojge, in[3]=dojl, in[4]=dojne, in[5]=dojle, in[6]=jmp, out=loadpc);
+
+     /* Increment PC if A has been loaded */
+     PC(in[0..14]=aregout, load=loadpc, inc=true, reset=reset, out[0..14]=pc);
 }
