@@ -43,12 +43,15 @@ CHIP Memory {
     DMux4Way(in=in[13], a=ram16in13, b=ram16ain13, c=screenin13, sel=address[13..14]);
     DMux4Way(in=in[14], a=ram16in14, b=ram16ain14, c=screenin14, sel=address[13..14]);
     DMux4Way(in=in[15], a=ram16in15, b=ram16ain15, c=screenin15, sel=address[13..14]);
+    DMux4Way(in=load, a=loadram16, b=loadram16a, c=loadscreen, sel=address[13..14]);
 
     Mux16(a[0]=ram16in0, a[1]=ram16in1, a[2]=ram16in2, a[3]=ram16in3, a[4]=ram16in4, a[5]=ram16in5, a[6]=ram16in6, a[7]=ram16in7, a[8]=ram16in8, a[9]=ram16in9, a[10]=ram16in10, a[11]=ram16in11, a[12]=ram16in12, a[13]=ram16in13, a[14]=ram16in14, a[15]=ram16in15, b[0]=ram16ain0, b[1]=ram16ain1, b[2]=ram16ain2, b[3]=ram16ain3, b[4]=ram16ain4, b[5]=ram16ain5, b[6]=ram16ain6, b[7]=ram16ain7, b[8]=ram16ain8, b[9]=ram16ain9, b[10]=ram16ain10, b[11]=ram16ain11, b[12]=ram16ain12, b[13]=ram16ain13, b[14]=ram16ain14, b[15]=ram16ain15, sel=address[13], out=ram16recombined);
 
-    RAM16K(in=ram16recombined, out=ram16out, load=load, address=address[0..13]);
+    Or(a=loadram16, b=loadram16a, out=shouldloadram);
+
+    RAM16K(in=ram16recombined, out=ram16out, load=shouldloadram, address=address[0..13]);
     
-    Screen(in[0]=screenin0, in[1]=screenin1, in[2]=screenin2, in[3]=screenin3, in[4]=screenin4, in[5]=screenin5, in[6]=screenin6, in[7]=screenin7, in[8]=screenin8, in[9]=screenin9, in[10]=screenin10, in[11]=screenin11, in[12]=screenin12, in[13]=screenin13, in[14]=screenin14, in[15]=screenin15, out=screenout, load=load, address=address[0..12]);
+    Screen(in[0]=screenin0, in[1]=screenin1, in[2]=screenin2, in[3]=screenin3, in[4]=screenin4, in[5]=screenin5, in[6]=screenin6, in[7]=screenin7, in[8]=screenin8, in[9]=screenin9, in[10]=screenin10, in[11]=screenin11, in[12]=screenin12, in[13]=screenin13, in[14]=screenin14, in[15]=screenin15, out=screenout, load=loadscreen, address=address[0..12]);
     Keyboard(out=keybout);
 
     Mux4Way16(a=ram16out, b=ram16out, c=screenout, d=keybout, sel=address[13..14], out=out);
